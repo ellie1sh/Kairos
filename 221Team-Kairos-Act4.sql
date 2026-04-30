@@ -83,7 +83,7 @@ INSERT INTO `facility` (`facilityId`, `facilityName`) VALUES
 ('F002', 'D527 Laboratory'),
 ('F003', 'D526 Laboratory'),
 ('F004', 'Devesse AVR'),
-('F005', 'Devesse Ampitheater'),
+('F005', 'Devesse Amphitheater'),
 ('F006', 'Devesse Lobby'),
 ('F007', 'D426 Open Laboratory'),
 ('F008', 'D424 Knowledge Center'),
@@ -240,7 +240,8 @@ CREATE TABLE IF NOT EXISTS `borrow` (
 --
 -- Dumping data for table `borrow`
 --
--- Note: B012 dateBorrowed/timeBorrowed are NULL because it has not been borrowed yet (reserved).
+-- Note: B012 is a future reservation; dateBorrowed/timeBorrowed are set to the scheduled date
+--       (2026-04-20 08:00:00) and status is 'borrowed' to reflect that the items are committed.
 
 INSERT INTO `borrow` (`borrowId`, `borrowerId`, `custodianId`, `dateBorrowed`, `timeBorrowed`, `activityId`, `dateReturned`, `timeReturned`, `status`, `remarks`) VALUES
 ('B001', 2250010, 2250140, '2025-01-22', '10:00:00', 'A001', '2025-01-22', '11:00:00', 'returned',             ''),
@@ -413,6 +414,8 @@ END$$
 -- ------------------------------------------------------------
 
 -- Add a new facility
+-- Note: AddFacility, UpdateFacility, and DeleteFacility are defined here for completeness
+--       but are not currently exposed in the Java console UI.
 DROP PROCEDURE IF EXISTS AddFacility$$
 CREATE PROCEDURE AddFacility(
     IN p_facilityId   VARCHAR(6),
@@ -503,6 +506,8 @@ BEGIN
 END$$
 
 -- Update an item's editable fields (name, type, description, model, dateAcquired)
+-- Note: This procedure exists in SQL for completeness but is not currently exposed in the Java console UI.
+--       Use UpdateItemStatus for the status-only update that the UI does provide.
 DROP PROCEDURE IF EXISTS UpdateItem$$
 CREATE PROCEDURE UpdateItem(
     IN p_itemId      VARCHAR(15),
@@ -716,6 +721,8 @@ BEGIN
 END$$
 
 -- Reject an activity request
+-- Note: p_approvedBy identifies the rejecting custodian for validation purposes but is intentionally
+--       not written to the approvedBy column; rejected activities leave approvedBy as NULL per design.
 DROP PROCEDURE IF EXISTS RejectActivity$$
 CREATE PROCEDURE RejectActivity(
     IN p_activityId VARCHAR(6),
@@ -882,7 +889,7 @@ BEGIN
     );
 END$$
 
--- Add an item to an existing borrow record (only when status is 'to be borrowed')
+-- Add an item to an existing borrow record (only when status is 'borrowed')
 DROP PROCEDURE IF EXISTS AddItemToBorrow$$
 CREATE PROCEDURE AddItemToBorrow(
     IN p_borrowId VARCHAR(6),
@@ -926,7 +933,7 @@ BEGIN
     VALUES (p_borrowId, p_itemId);
 END$$
 
--- Remove an item from a borrow record (only when status is 'to be borrowed')
+-- Remove an item from a borrow record (only when status is 'borrowed')
 DROP PROCEDURE IF EXISTS RemoveItemFromBorrow$$
 CREATE PROCEDURE RemoveItemFromBorrow(
     IN p_borrowId VARCHAR(6),
@@ -1024,7 +1031,7 @@ DROP FUNCTION IF EXISTS sf_item_availability_label$$
 CREATE FUNCTION sf_item_availability_label(p_itemId VARCHAR(15))
 RETURNS VARCHAR(80)
 READS SQL DATA
-DETERMINISTIC
+NOT DETERMINISTIC
 BEGIN
     DECLARE v_avail  VARCHAR(12);
     DECLARE v_cond   VARCHAR(18);
@@ -1070,7 +1077,7 @@ DROP FUNCTION IF EXISTS sf_borrow_duration_days$$
 CREATE FUNCTION sf_borrow_duration_days(p_borrowId VARCHAR(6))
 RETURNS INT
 READS SQL DATA
-DETERMINISTIC
+NOT DETERMINISTIC
 BEGIN
     DECLARE v_start  DATE;
     DECLARE v_end    DATE;
@@ -1099,7 +1106,7 @@ DROP FUNCTION IF EXISTS sf_activity_status_label$$
 CREATE FUNCTION sf_activity_status_label(p_activityId VARCHAR(6))
 RETURNS VARCHAR(120)
 READS SQL DATA
-DETERMINISTIC
+NOT DETERMINISTIC
 BEGIN
     DECLARE v_status  VARCHAR(9);
     DECLARE v_remarks VARCHAR(100);
@@ -1139,7 +1146,7 @@ DROP FUNCTION IF EXISTS sf_user_borrow_count$$
 CREATE FUNCTION sf_user_borrow_count(p_userId INT)
 RETURNS INT
 READS SQL DATA
-DETERMINISTIC
+NOT DETERMINISTIC
 BEGIN
     DECLARE v_count INT;
 

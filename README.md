@@ -56,7 +56,7 @@ The program verifies the database connection before showing any menu. If MySQL i
 workspace/
 ├── pom.xml                               Maven build file
 ├── 221Team-Kairos-Act4.sql               Full database schema + data + routines
-├── 221Team-Kairos-Act4.pdf               Project requirements and CRUD matrix
+├── 221Team-Kairos-Act4.pdf               Project requirements and CRUD matrix (not tracked in repo)
 └── src/jdbc/demo/
     ├── Main.java                         Entry point — all menus and user interaction
     ├── Database.java                     Facade that delegates to individual DAOs
@@ -141,11 +141,11 @@ Every write operation is a stored procedure called from Java via `CallableStatem
 | `AddUser` | Insert a new user; validates type |
 | `UpdateUser` | Update all user fields |
 | `DeleteUser` | Delete user (cascades to activity/borrow) |
-| `AddFacility` | Insert a new facility |
-| `UpdateFacility` | Rename a facility |
-| `DeleteFacility` | Delete facility (cascades to activitydetails) |
+| `AddFacility` | Insert a new facility *(defined in SQL; not currently exposed in Java UI)* |
+| `UpdateFacility` | Rename a facility *(defined in SQL; not currently exposed in Java UI)* |
+| `DeleteFacility` | Delete facility (cascades to activitydetails) *(defined in SQL; not currently exposed in Java UI)* |
 | `AddItem` | Insert a new item; validates type, condition, availability |
-| `UpdateItem` | Update item name, type, description, model, dateAcquired |
+| `UpdateItem` | Update item name, type, description, model, dateAcquired *(defined in SQL; not currently exposed in Java UI — use `UpdateItemStatus` for status changes)* |
 | `UpdateItemStatus` | Update condition and availability only |
 | `MarkItemUnderMaintenance` | Sets condition = "under maintenance", availability = "unavailable" |
 | `DeleteItem` | Delete item; blocked if currently borrowed |
@@ -171,7 +171,7 @@ Stored functions are called from Java using the `{ ? = CALL function_name(?) }` 
 
 | Function | Parameter | Returns |
 |---|---|---|
-| `sf_item_availability_label` | `itemId VARCHAR(15)` | `"Available"` / `"Borrowed by <FirstName LastName>"` / `"Unavailable (under maintenance)"` |
+| `sf_item_availability_label` | `itemId VARCHAR(15)` | `"Available"` / `"Borrowed by <FirstName LastName>"` / `"Unavailable (<conditionStatus>)"` — conditionStatus can be `damaged` or `under maintenance` |
 | `sf_borrow_duration_days` | `borrowId VARCHAR(6)` | Integer days from `dateBorrowed` to `dateReturned` (or `CURDATE()` if not returned yet). Returns `-1` if record not found. |
 | `sf_activity_status_label` | `activityId VARCHAR(6)` | `"Approved by <Name>"` / `"Rejected (<remarks>)"` / `"Pending - awaiting approval"` |
 | `sf_user_borrow_count` | `userId INT` | Integer count of all borrow transactions for that user |

@@ -97,9 +97,9 @@ public class MySqlReportDao implements ReportDao {
                     JOIN `USER` u ON a.requesterId = u.userId;
                     """, null);
             case 18 -> runQuery("""
-                    SELECT a.activityName, u.lastName AS ApproverName
+                    SELECT a.activityName, COALESCE(u.lastName, 'N/A') AS ApproverName
                     FROM ACTIVITY a
-                    JOIN `USER` u ON a.approvedBy = u.userId;
+                    LEFT JOIN `USER` u ON a.approvedBy = u.userId;
                     """, null);
             case 19 -> runQuery("""
                     SELECT a.activityName, u.lastName
@@ -129,6 +129,7 @@ public class MySqlReportDao implements ReportDao {
                     JOIN BORROW b ON u.userId = b.borrowerId
                     JOIN BORROWDETAILS bd ON b.borrowId = bd.borrowId
                     WHERE b.status = 'borrowed'
+                      AND u.type = 'Student'
                     GROUP BY u.userId;
                     """, null);
             case 23 -> runQuery("""
@@ -175,7 +176,7 @@ public class MySqlReportDao implements ReportDao {
                         stmt.setString(6, endDate);
                     });
             case 27 -> runQuery("""
-                    SELECT i.itemName, u.lastName, u.contactNum
+                    SELECT i.itemName, u.lastName, u.contactnum
                     FROM ITEM i
                     JOIN BORROWDETAILS bd ON i.itemId = bd.itemId
                     JOIN BORROW b ON bd.borrowId = b.borrowId
