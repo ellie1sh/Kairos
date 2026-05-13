@@ -1,0 +1,17 @@
+# IntelliJ / IDE
+.idea/
+*.iml
+
+# Maven
+target/
+dependency-reduced-pom.xml
+
+# Ad-hoc compile output (not standard Maven layout)
+out/
+
+# Java
+*.class
+
+# OS
+Thumbs.db
+Desktop.ini
