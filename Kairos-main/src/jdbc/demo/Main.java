@@ -1,6 +1,7 @@
 package jdbc.demo;
 
 import com.formdev.flatlaf.FlatIntelliJLaf;
+import jdbc.demo.config.DatabaseConnection;
 import jdbc.demo.ui.LoginFrame;
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +18,12 @@ public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             setupLookAndFeel();
+
+            if (!DatabaseConnection.testConnection()) {
+                System.err.println("Application will now exit.");
+                System.exit(1);
+            }
+
             new LoginFrame().setVisible(true);
         });
     }
@@ -29,7 +36,6 @@ public class Main {
             catch (Exception ignored) {}
         }
 
-        // Global FlatLaf token overrides
         UIManager.put("Button.arc",           10);
         UIManager.put("Component.arc",        8);
         UIManager.put("TextComponent.arc",    6);
