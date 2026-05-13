@@ -325,10 +325,11 @@ public class MySqlActivityDao implements ActivityDao {
 
     @Override
     public void deleteActivity(String activityId, int actorUserId) throws SQLException {
+        // The stored procedure DeleteActivity expects only one argument (activityId).
+        // The actorUserId parameter is ignored because the database procedure does not use it.
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("CALL DeleteActivity(?,?)")) {
+             PreparedStatement stmt = conn.prepareStatement("CALL DeleteActivity(?)")) {
             stmt.setString(1, activityId);
-            stmt.setInt(2, actorUserId);
             stmt.execute();
         }
     }
