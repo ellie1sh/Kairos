@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class MySqlUserDao implements UserDao {
 
     @Override
@@ -36,7 +38,9 @@ public class MySqlUserDao implements UserDao {
     @Override
     public void addUser(int userId, String firstName, String lastName,
                         String email, String contactNum, String type, String password) throws SQLException {
-        String pw = password != null ? password : "";
+        String pw = password != null && !password.isBlank()
+                ? BCrypt.hashpw(password, BCrypt.gensalt(12))
+                : "";
         try (Connection conn = DatabaseConnection.getConnection()) {
             try {
                 executeAddUserSevenArgs(conn, userId, firstName, lastName, email, contactNum, type, pw);
@@ -148,17 +152,34 @@ public class MySqlUserDao implements UserDao {
         }
     }
 
+
     @Override
     public UserRecord findByEmailandPassword(String email, String password) throws SQLException {
-        String sql = "SELECT * FROM `user` WHERE email = ? AND password = ? LIMIT 1;";
+        String sql = "SELECT * FROM `user` WHERE email = ? LIMIT 1;";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
-            stmt.setString(2, password);
             try (ResultSet rs = stmt.executeQuery()) {
                 List<UserRecord> list = mapUsers(rs);
-                return list.isEmpty() ? null : list.get(0);
+                if (list.isEmpty()) return null;
+
+                UserRecord user = list.get(0);
+                if (!BCrypt.checkpw(password, user.getPassword())) return null; // wrong password
+
+                return user;
             }
+        }
+    }
+
+    @Override
+    public void changePassword(int userId, String newPlainPassword) throws SQLException {
+        String hashed = BCrypt.hashpw(newPlainPassword, BCrypt.gensalt(12));
+        String sql = "UPDATE `user` SET password = ? WHERE userId = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, hashed);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
         }
     }
 

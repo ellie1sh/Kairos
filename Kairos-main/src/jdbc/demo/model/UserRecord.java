@@ -1,4 +1,5 @@
 package jdbc.demo.model;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserRecord {
     private final int userId;
@@ -34,7 +35,10 @@ public class UserRecord {
         this.lastName = lastName;
         this.contactNum = contactNum;
     }
-
+    public boolean isFirstLogin() {
+        String emailPrefix = email.split("@")[0];
+        return BCrypt.checkpw(emailPrefix, this.password);
+    }
     @Override
     public String toString() {
         return String.format(

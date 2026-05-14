@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,9 +30,6 @@ public class UsersPanel extends JPanel {
 
     private static final String[] BORROWER_TYPES = {"Student", "Professor"};
     /** Characters for auto-generated initial passwords (ambiguous 0/O/1/l omitted). */
-    private static final String     PW_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-    private static final int        PW_LENGTH  = 14;
-    private static final SecureRandom PASSWORD_RANDOM = new SecureRandom();
 
     private final UserRecord currentUser;
     private final Database   db;
@@ -203,7 +199,7 @@ public class UsersPanel extends JPanel {
                 }
                 String generatedPassword = null;
                 if (isNew) {
-                    generatedPassword = generateRandomInitialPassword();
+                    generatedPassword = email.split("@")[0];   // e.g. "ej0160" from "ej0160@slu.edu.ph"
                     if (!demo) {
                         db.addUser(uid, first, last, email, contact, type, generatedPassword);
                     }
@@ -224,20 +220,14 @@ public class UsersPanel extends JPanel {
         dlg.setVisible(true);
     }
 
-    private static String generateRandomInitialPassword() {
-        StringBuilder sb = new StringBuilder(PW_LENGTH);
-        for (int i = 0; i < PW_LENGTH; i++) {
-            sb.append(PW_CHARSET.charAt(PASSWORD_RANDOM.nextInt(PW_CHARSET.length())));
-        }
-        return sb.toString();
-    }
+
 
     private static void showCreatedUserPasswordNotice(Component parent, String email, String password) {
-        String text = "A random password was saved to the database for this account.\n\n"
+        String text = "Account created successfully.\n\n"
                 + "Email: " + email + "\n\n"
-                + "Temporary password (copy and share securely with the user):\n"
+                + "Temporary password (same as email username):\n"
                 + password + "\n\n"
-                + "They should change it after first login if your policy allows.";
+                + "The user will be prompted to change their password on first login.";
         JTextArea area = new JTextArea(text);
         area.setEditable(false);
         area.setLineWrap(true);

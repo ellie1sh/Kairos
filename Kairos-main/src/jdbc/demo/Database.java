@@ -58,6 +58,9 @@ public class Database {
     public void deleteUser(int userId) throws SQLException {
         userDao.deleteUser(userId);
     }
+    public void changePassword(int userId, String newPlainPassword) throws SQLException {
+        userDao.changePassword(userId, newPlainPassword);
+    }
 
     public int getUserBorrowCount(int userId) throws SQLException {
         return userDao.getUserBorrowCount(userId);

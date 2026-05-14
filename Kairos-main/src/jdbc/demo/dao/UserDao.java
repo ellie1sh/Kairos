@@ -14,6 +14,7 @@ public interface UserDao {
     void updateUser(int userId, String firstName, String lastName,
                     String email, String contactNum, String type) throws SQLException;
     void deleteUser(int userId) throws SQLException;
+    void changePassword(int userId, String newPlainPassword) throws SQLException;
 
     /** Returns the total number of borrow transactions on record for this user. */
     int getUserBorrowCount(int userId) throws SQLException;

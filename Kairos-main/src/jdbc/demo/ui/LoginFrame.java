@@ -351,6 +351,14 @@ public class LoginFrame extends JFrame {
                         errorLabel.setText("Invalid email or password.");
                         return;
                     }
+                    if (user.isFirstLogin()) {
+                        FirstLoginDialog firstLogin = new FirstLoginDialog(LoginFrame.this, user, db);
+                        firstLogin.setVisible(true);
+                        if (!firstLogin.isPasswordChanged()) {
+                            errorLabel.setText("You must set a new password to continue.");
+                            return;
+                        }
+                    }
                     AppFrame app = new AppFrame(user, db, false);
                     dispose();
                     app.setVisible(true);
